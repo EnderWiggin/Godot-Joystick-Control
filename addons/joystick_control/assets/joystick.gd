@@ -110,25 +110,39 @@ func _process_input(event):
 	
 	if was_pressed != pressed: emit_signal("pressed", pressed)
 
+func press_input_action(_action: String, _strength: = 1.0):
+	var input_action: = InputEventAction.new()
+	input_action.action = _action
+	input_action.pressed = true
+	input_action.strength = _strength
+	Input.parse_input_event(input_action)
+
+func release_input_action(_action: String):
+	var input_action: = InputEventAction.new()
+	input_action.action = _action
+	input_action.pressed = false
+	input_action.strength = 0.0
+	Input.parse_input_event(input_action)
+
 func _update_force(_force):
-	if _force.x <= 0:
-		Input.action_press(action_left, -_force.x)
-		Input.action_release(action_right)
-	
+	if _force.x < 0:
+		press_input_action(action_left, -_force.x)
+		release_input_action(action_right)
+
 	if _force.x >= 0:
-		Input.action_press(action_right, _force.x)
-		Input.action_release(action_left)
-	
+		press_input_action(action_right, _force.x)
+		release_input_action(action_left)
+
 	if _force.y >= 0:
-		Input.action_press(action_down, _force.y)
-		Input.action_release(action_up)
-	
-	if _force.y <= 0:
-		Input.action_press(action_up, -_force.y)
-		Input.action_release(action_down)
-	
+		press_input_action(action_down, _force.y)
+		release_input_action(action_up)
+
+	if _force.y < 0:
+		press_input_action(action_up, -_force.y)
+		release_input_action(action_down)
+
 	emit_signal("updated", _force, is_pressed())
-	
+
 func _get_event_idx(event):
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
 		return event.index
