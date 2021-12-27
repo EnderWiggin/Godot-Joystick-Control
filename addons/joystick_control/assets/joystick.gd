@@ -123,25 +123,32 @@ func release_input_action(_action: String):
 	input_action.pressed = false
 	input_action.strength = 0.0
 	Input.parse_input_event(input_action)
-
-func _update_force(_force):
-	if _force.x < 0:
-		press_input_action(action_left, -_force.x)
+func _update_force(force):
+	if abs(force.x) < 0.001:
+		release_input_action(action_left)
 		release_input_action(action_right)
 
-	if _force.x >= 0:
-		press_input_action(action_right, _force.x)
+	elif force.x < 0:
+		press_input_action(action_left, -force.x)
+		release_input_action(action_right)
+
+	elif force.x > 0:
+		press_input_action(action_right, force.x)
 		release_input_action(action_left)
 
-	if _force.y >= 0:
-		press_input_action(action_down, _force.y)
+	if abs(force.y) < 0.001:
 		release_input_action(action_up)
-
-	if _force.y < 0:
-		press_input_action(action_up, -_force.y)
 		release_input_action(action_down)
 
-	emit_signal("updated", _force, is_pressed())
+	elif force.y > 0:
+		press_input_action(action_down, force.y)
+		release_input_action(action_up)
+
+	elif force.y < 0:
+		press_input_action(action_up, -force.y)
+		release_input_action(action_down)
+
+	emit_signal("updated", force, is_pressed())
 
 func _get_event_idx(event):
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
